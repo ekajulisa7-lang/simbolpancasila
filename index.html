@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Simbol Pancasila - Game Edukasi Kelas 1 SD</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for UI Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Lexend for fun, highly readable typography for kids -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Lexend:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti for winning celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * {
+            font-family: 'Fredoka', 'Lexend', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 50%, #fef3c7 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .bounce-gentle {
+            animation: bounceGentle 2s infinite ease-in-out;
+        }
+        @keyframes bounceGentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .pulse-glow {
+            animation: pulseGlow 1.8s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+            100% { box-shadow: 0 0 25px rgba(251, 191, 36, 0.9); transform: scale(1.02); }
+        }
+        .card-pop {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-pop:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
+        }
+        .card-pop:active {
+            transform: translateY(2px) scale(0.98);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fbbf24;
+            border-radius: 10px;
+        }
+        /* Wheel spin CSS */
+        #wheelCanvas {
+            transition: transform 4s cubic-bezier(0.15, 0.99, 0.24, 0.99);
+        }
+        /* Touch friendly drag feedback */
+        .dragging {
+            opacity: 0.6;
+            scale: 0.95;
+        }
+        .drop-target-active {
+            border-color: #3b82f6 !important;
+            background-color: #dbeafe !important;
+            scale: 1.05;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <!-- TOP NAVBAR -->
+    <header class="bg-white/90 backdrop-blur-md shadow-md sticky top-0 z-40 px-4 py-3 border-b-4 border-amber-400">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <button onclick="goToHome()" class="flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-amber-950 font-bold px-4 py-2 rounded-2xl shadow-md card-pop transition text-sm md:text-base">
+                <i class="fa-solid font-black fa-house text-lg"></i>
+                <span class="hidden sm:inline">Menu Utama</span>
+            </button>
+
+            <!-- Title Header -->
+            <div class="text-center flex items-center gap-2">
+                <span class="text-2xl md:text-3xl">🦅</span>
+                <h1 class="text-lg md:text-2xl font-black text-amber-600 tracking-wide drop-shadow-sm">
+                    PETUALANGAN PANCASILA
+                </h1>
+            </div>
+
+            <!-- Global Controls: Sound & Audio Text-To-Speech -->
+            <div class="flex items-center gap-2">
+                <button id="ttsBtn" onclick="toggleAudioSpeech()" class="bg-sky-100 hover:bg-sky-200 text-sky-700 font-bold p-2 md:px-3 md:py-2 rounded-2xl shadow border border-sky-300 flex items-center gap-1 text-sm">
+                    <i id="ttsIcon" class="fa-solid fa-volume-high text-lg"></i>
+                    <span class="hidden md:inline text-xs font-semibold">Suara Guru</span>
+                </button>
+                <button id="sfxBtn" onclick="toggleSFX()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold p-2 md:px-3 md:py-2 rounded-2xl shadow border border-amber-300 text-sm">
+                    <i id="sfxIcon" class="fa-solid fa-music text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
+
+        <!-- ============================================================== -->
+        <!-- VIEW 1: LANDING / HOME PAGE -->
+        <!-- ============================================================== -->
+        <section id="view-home" class="view-section space-y-6 text-center py-4">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 rounded-3xl p-6 md:p-10 shadow-xl border-4 border-white relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-xl"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-center gap-6">
+                    <!-- Cartoon Hero Mascot -->
+                    <div class="relative group">
+                        <div class="w-36 h-36 md:w-44 md:h-44 bg-white rounded-full p-3 shadow-lg flex items-center justify-center bounce-gentle border-4 border-amber-200">
+                            <!-- Helper Kids Illustration SVG -->
+                            <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow">
+                                <circle cx="100" cy="100" r="90" fill="#FEF08A"/>
+                                <path d="M50 160 C 50 120, 150 120, 150 160 Z" fill="#3B82F6"/>
+                                <circle cx="100" cy="85" r="45" fill="#FDBA74"/>
+                                <!-- Hair -->
+                                <path d="M55 75 Q 100 30 145 75 C 130 50 70 50 55 75 Z" fill="#1E293B"/>
+                                <!-- Red Cap -->
+                                <path d="M50 65 Q 100 25 150 65 L 165 75 L 140 75 Z" fill="#EF4444"/>
+                                <!-- Eyes -->
+                                <circle cx="85" cy="85" r="6" fill="#0F172A"/>
+                                <circle cx="115" cy="85" r="6" fill="#0F172A"/>
+                                <!-- Smile -->
+                                <path d="M85 105 Q 100 120 115 105" stroke="#0F172A" stroke-width="4" fill="none" stroke-linecap="round"/>
+                                <!-- Cheeks -->
+                                <circle cx="75" cy="98" r="7" fill="#F87171" opacity="0.6"/>
+                                <circle cx="125" cy="98" r="7" fill="#F87171" opacity="0.6"/>
+                            </svg>
+                        </div>
+                        <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-red-500 text-white font-bold text-xs px-3 py-1 rounded-full shadow">Si Budi & Siti</span>
+                    </div>
+
+                    <div class="text-left space-y-3 max-w-lg">
+                        <span class="bg-amber-900/10 text-amber-950 font-bold text-xs md:text-sm px-3 py-1 rounded-full uppercase tracking-wider inline-block">Pendidikan Pancasila Kelas 1 SD</span>
+                        <h2 class="text-3xl md:text-5xl font-black text-amber-950 leading-tight">
+                            Petualangan Simbol Pancasila 🌟
+                        </h2>
+                        <div class="bg-white/80 backdrop-blur rounded-2xl p-4 shadow-sm border border-amber-200 text-amber-900 text-base md:text-lg font-medium">
+                            “Yuk, kita berpetualang mengenal simbol-simbol Pancasila! Selesaikan setiap misi dan kumpulkan bintangmu!”
+                            <button onclick="speakText('Yuk, kita berpetualang mengenal simbol-simbol Pancasila! Selesaikan setiap misi dan kumpulkan bintangmu!')" class="ml-2 text-sky-600 hover:text-sky-800"><i class="fa-solid fa-volume-high"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Menu Action Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+                <button onclick="goToMap()" class="pulse-glow bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xl py-5 px-6 rounded-3xl shadow-xl border-b-8 border-emerald-700 card-pop flex flex-col items-center justify-center gap-2">
+                    <span class="text-4xl">🚀</span>
+                    <span>MULAI PETUALANGAN</span>
+                </button>
+
+                <button onclick="goToMateri()" class="bg-sky-500 hover:bg-sky-600 text-white font-black text-xl py-5 px-6 rounded-3xl shadow-xl border-b-8 border-sky-700 card-pop flex flex-col items-center justify-center gap-2">
+                    <span class="text-4xl">📚</span>
+                    <span>MATERI BELAJAR</span>
+                </button>
+
+                <button onclick="openInstructionsModal()" class="bg-purple-500 hover:bg-purple-600 text-white font-black text-xl py-5 px-6 rounded-3xl shadow-xl border-b-8 border-purple-700 card-pop flex flex-col items-center justify-center gap-2">
+                    <span class="text-4xl">💡</span>
+                    <span>PETUNJUK GAME</span>
+                </button>
+            </div>
+
+            <!-- Total Stars Display -->
+            <div class="inline-flex items-center gap-3 bg-white px-6 py-3 rounded-full shadow-md border-2 border-amber-300">
+                <span class="text-amber-500 text-2xl"><i class="fa-solid fa-star"></i></span>
+                <span class="text-slate-700 font-bold text-lg">Total Bintang Dikumpulkan: <span id="totalStarsCount" class="text-amber-600 font-black text-2xl">0</span> / 10</span>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 2: MATERI PEMBELAJARAN (Interactive Cards) -->
+        <!-- ============================================================== -->
+        <section id="view-materi" class="view-section hidden space-y-6">
+            <div class="flex items-center justify-between bg-sky-100 p-4 rounded-2xl border-2 border-sky-300">
+                <div>
+                    <h2 class="text-2xl font-black text-sky-900">📚 Belajar Simbol Pancasila</h2>
+                    <p class="text-sky-700 text-sm md:text-base font-semibold">Klik panah untuk melihat kelima simbol dan maknanya!</p>
+                </div>
+                <button onclick="speakCurrentMateriCard()" class="bg-sky-500 text-white font-bold p-3 rounded-2xl shadow hover:bg-sky-600">
+                    <i class="fa-solid fa-volume-high text-xl"></i> Baca Teks
+                </button>
+            </div>
+
+            <!-- Material Card Carousel Container -->
+            <div id="materiCardContainer" class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-4 border-amber-300 relative">
+                <!-- Content will be injected dynamically -->
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="flex items-center justify-between gap-4">
+                <button id="prevMateriBtn" onclick="changeMateriIndex(-1)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-black px-6 py-3 rounded-2xl shadow-md text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <span id="materiProgressText" class="text-slate-600 font-bold text-lg">1 dari 5</span>
+                <button id="nextMateriBtn" onclick="changeMateriIndex(1)" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-black px-6 py-3 rounded-2xl shadow-md text-lg flex items-center gap-2">
+                    Lanjut <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="text-center pt-2">
+                <button onclick="goToMap()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xl px-8 py-4 rounded-2xl shadow-lg border-b-4 border-emerald-700 card-pop inline-flex items-center gap-3">
+                    <span>🎮 COBA MAIN KUIS / PETA</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 3: PETA PETUALANGAN (10 Mission Map) -->
+        <!-- ============================================================== -->
+        <section id="view-map" class="view-section hidden space-y-6">
+            <div class="bg-white/90 backdrop-blur rounded-3xl p-4 md:p-6 shadow-xl border-4 border-sky-300 text-center space-y-2">
+                <h2 class="text-2xl md:text-3xl font-black text-sky-900">🗺️ Peta Petualangan Pancasila</h2>
+                <p class="text-slate-600 font-medium">Selesaikan Misi 1 sampai 10 secara berurutan untuk menjadi Pahlawan Pancasila!</p>
+                
+                <!-- Progress bar -->
+                <div class="w-full bg-slate-200 h-6 rounded-full overflow-hidden p-1 border border-slate-300 max-w-xl mx-auto">
+                    <div id="mapProgressBar" class="bg-gradient-to-r from-amber-400 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: 10%;"></div>
+                </div>
+            </div>
+
+            <!-- Map Nodes Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4" id="mapGrid">
+                <!-- 10 Mission Cards dynamically populated -->
+            </div>
+
+            <div class="flex justify-center gap-4 pt-4">
+                <button onclick="startAssessment()" id="finalQuizBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-black text-xl px-8 py-4 rounded-2xl shadow-xl border-b-4 border-purple-800 card-pop flex items-center gap-3">
+                    <span>📝 UJI KEMAMPUAN (ASESMEN AKHIR)</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 4: MISSION GAMEPLAY WRAPPER -->
+        <!-- ============================================================== -->
+        <section id="view-mission" class="view-section hidden space-y-6">
+            <!-- Header Misi -->
+            <div class="flex items-center justify-between bg-white rounded-2xl p-4 shadow-md border-2 border-amber-300">
+                <div class="flex items-center gap-3">
+                    <span id="missionBadge" class="bg-amber-400 text-amber-950 font-black text-lg px-4 py-1.5 rounded-full">MISI 1</span>
+                    <h3 id="missionTitle" class="text-xl md:text-2xl font-black text-slate-800">Judul Misi</h3>
+                </div>
+                <button onclick="goToMap()" class="text-slate-500 hover:text-slate-700 bg-slate-100 p-2 rounded-xl text-sm font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-map"></i> Ke Peta
+                </button>
+            </div>
+
+            <!-- Instruction Box -->
+            <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">🗣️</span>
+                    <p id="missionInstruction" class="text-slate-800 font-semibold text-base md:text-lg">Instruksi misi akan muncul di sini.</p>
+                </div>
+                <button onclick="speakMissionInstruction()" class="bg-amber-400 hover:bg-amber-500 text-amber-950 p-2.5 rounded-xl shadow font-bold shrink-0">
+                    <i class="fa-solid fa-volume-high text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Dynamic Mission Arena -->
+            <div id="missionArena" class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-4 border-sky-200 min-h-[350px] flex flex-col justify-center items-center relative">
+                <!-- Gameplay specific code will be mounted here -->
+            </div>
+
+            <!-- Bottom Mission Controls -->
+            <div class="flex justify-between items-center">
+                <button onclick="goToMap()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-black px-6 py-3 rounded-2xl shadow">
+                    ← Kembal ke Peta
+                </button>
+                <button id="nextMissionNavBtn" onclick="nextMission()" class="hidden bg-emerald-500 hover:bg-emerald-600 text-white font-black px-8 py-3.5 rounded-2xl shadow-lg border-b-4 border-emerald-700 text-lg card-pop">
+                    MISI BERIKUTNYA 🚀
+                </button>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 5: ASESMEN AKHIR (10 MCQs) -->
+        <!-- ============================================================== -->
+        <section id="view-assessment" class="view-section hidden space-y-6">
+            <div class="bg-purple-600 text-white rounded-3xl p-6 shadow-xl text-center space-y-2">
+                <h2 class="text-3xl font-black">📝 UJI KEMAMPUANMU!</h2>
+                <p class="text-purple-100 font-semibold">Jawab 10 pertanyaan bergambar sederhana untuk mendapatkan nilai akhirmu.</p>
+                <div id="assessmentProgress" class="text-amber-300 font-bold text-lg">Soal 1 dari 10</div>
+            </div>
+
+            <div id="assessmentCard" class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-4 border-purple-200 space-y-6">
+                <!-- Question Content injected via JavaScript -->
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- VIEW 6: HASIL ASESMEN / CERTIFICATE -->
+        <!-- ============================================================== -->
+        <section id="view-results" class="view-section hidden space-y-6 text-center">
+            <div class="bg-white rounded-3xl p-8 shadow-2xl border-4 border-amber-400 space-y-6 max-w-2xl mx-auto relative overflow-hidden">
+                <div class="text-6xl bounce-gentle" id="resultEmoji">🏆</div>
+                <h2 class="text-3xl md:text-4xl font-black text-slate-800" id="resultTitle">Luar Biasa!</h2>
+                
+                <div class="bg-amber-50 rounded-2xl p-6 border-2 border-amber-200 space-y-4">
+                    <p id="resultFeedback" class="text-lg md:text-xl font-bold text-amber-900">
+                        Kamu telah menyelesaikan Petualangan Simbol Pancasila!
+                    </p>
+                    <div class="flex justify-center items-center gap-6 py-2">
+                        <div class="text-center">
+                            <span class="text-slate-500 font-bold block text-sm">BENAR</span>
+                            <span id="correctScoreText" class="text-3xl font-black text-emerald-600">10 / 10</span>
+                        </div>
+                        <div class="h-10 w-0.5 bg-slate-300"></div>
+                        <div class="text-center">
+                            <span class="text-slate-500 font-bold block text-sm">SKOR</span>
+                            <span id="finalScoreText" class="text-3xl font-black text-purple-600">100</span>
+                        </div>
+                        <div class="h-10 w-0.5 bg-slate-300"></div>
+                        <div class="text-center">
+                            <span class="text-slate-500 font-bold block text-sm">BINTANG</span>
+                            <span id="finalStarsText" class="text-3xl font-black text-amber-500">⭐ 10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                    <button onclick="goToHome()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-black px-6 py-3.5 rounded-2xl shadow">
+                        🏠 Menu Utama
+                    </button>
+                    <button onclick="startAssessment()" class="bg-purple-600 hover:bg-purple-700 text-white font-black px-6 py-3.5 rounded-2xl shadow border-b-4 border-purple-800">
+                        🔄 Coba Kuis Lagi
+                    </button>
+                    <button onclick="goToMap()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black px-6 py-3.5 rounded-2xl shadow border-b-4 border-emerald-700">
+                        🗺️ Peta Petualangan
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PETUNJUK MODAL -->
+    <div id="instructionsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border-4 border-amber-400 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-2xl font-black text-amber-600 flex items-center gap-2">
+                    <span>💡 Petunjuk Bermain</span>
+                </h3>
+                <button onclick="closeInstructionsModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+            </div>
+            <div class="space-y-3 text-slate-700 text-base font-medium">
+                <p>1. 🌟 **Buka Materi** untuk mengenal 5 simbol Pancasila dan artinya.</p>
+                <p>2. 🗺️ **Selesaikan 10 Misi** di Peta Petualangan dari Misi 1 sampai Misi 10.</p>
+                <p>3. 🔊 **Gunakan Suara Guru** (tombol speaker) jika kamu ingin dibacakan instruksi.</p>
+                <p>4. ⭐ Setiap misi selesai, kamu akan mendapatkan **1 Bintang**!</p>
+                <p>5. 📝 **Ikuti Asesmen Akhir** di akhir petualangan untuk menguji kehebatanmu!</p>
+            </div>
+            <button onclick="closeInstructionsModal()" class="w-full bg-amber-400 hover:bg-amber-500 text-amber-950 font-black py-3 rounded-2xl shadow">
+                Mengerti! Ayo Main 👍
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden SVG Symbols Library for reuse -->
+    <div class="hidden">
+        <!-- 1. BINTANG -->
+        <svg id="svg-bintang" viewBox="0 0 100 100" class="w-full h-full">
+            <rect width="100" height="100" rx="20" fill="#18181b"/>
+            <polygon points="50,12 62,38 90,38 67,55 75,82 50,65 25,82 33,55 10,38 38,38" fill="#facc15" stroke="#f59e0b" stroke-width="2"/>
+        </svg>
+
+        <!-- 2. RANTAI -->
+        <svg id="svg-rantai" viewBox="0 0 100 100" class="w-full h-full">
+            <rect width="100" height="100" rx="20" fill="#dc2626"/>
+            <!-- Chain loop -->
+            <circle cx="35" cy="35" r="16" fill="none" stroke="#facc15" stroke-width="7"/>
+            <rect x="35" y="45" width="30" height="10" fill="#facc15" transform="rotate(45 50 50)"/>
+            <circle cx="65" cy="65" r="16" fill="none" stroke="#facc15" stroke-width="7"/>
+            <rect x="42" y="28" width="16" height="16" fill="none" stroke="#facc15" stroke-width="5" rx="3"/>
+            <rect x="42" y="56" width="16" height="16" fill="none" stroke="#facc15" stroke-width="5" rx="3"/>
+        </svg>
+
+        <!-- 3. POHON BERINGIN -->
+        <svg id="svg-pohon" viewBox="0 0 100 100" class="w-full h-full">
+            <rect width="100" height="100" rx="20" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+            <!-- Trunk -->
+            <path d="M42 60 L42 85 L58 85 L58 60 Z" fill="#78350f"/>
+            <path d="M35 85 L42 70 M65 85 L58 70" stroke="#78350f" stroke-width="4"/>
+            <!-- Canopy -->
+            <circle cx="50" cy="40" r="28" fill="#15803d"/>
+            <circle cx="32" cy="48" r="18" fill="#16a34a"/>
+            <circle cx="68" cy="48" r="18" fill="#16a34a"/>
+            <circle cx="50" cy="28" r="20" fill="#22c55e"/>
+        </svg>
+
+        <!-- 4. KEPALA BANTENG -->
+        <svg id="svg-banteng" viewBox="0 0 100 100" class="w-full h-full">
+            <rect width="100" height="100" rx="20" fill="#dc2626"/>
+            <!-- Horns -->
+            <path d="M25 35 C 15 15, 45 15, 40 40 Z" fill="#ffffff"/>
+            <path d="M75 35 C 85 15, 55 15, 60 40 Z" fill="#ffffff"/>
+            <!-- Head -->
+            <path d="M30 40 L70 40 L65 75 L35 75 Z" fill="#0f172a"/>
+            <ellipse cx="50" cy="72" rx="15" ry="8" fill="#334155"/>
+            <!-- Snort holes -->
+            <circle cx="43" cy="72" r="2.5" fill="#000"/>
+            <circle cx="57" cy="72" r="2.5" fill="#000"/>
+            <!-- Eyes -->
+            <circle cx="40" cy="50" r="4" fill="#ffffff"/>
+            <circle cx="40" cy="50" r="2" fill="#000"/>
+            <circle cx="60" cy="50" r="4" fill="#ffffff"/>
+            <circle cx="60" cy="50" r="2" fill="#000"/>
+        </svg>
+
+        <!-- 5. PADI DAN KAPAS -->
+        <svg id="svg-padikapas" viewBox="0 0 100 100" class="w-full h-full">
+            <rect width="100" height="100" rx="20" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+            <!-- Rice (Left) -->
+            <path d="M35 80 Q 25 50 38 20" stroke="#ca8a04" fill="none" stroke-width="3"/>
+            <circle cx="33" cy="30" r="4" fill="#eab308"/>
+            <circle cx="28" cy="42" r="4" fill="#eab308"/>
+            <circle cx="31" cy="54" r="4" fill="#eab308"/>
+            <circle cx="34" cy="66" r="4" fill="#eab308"/>
+            <!-- Cotton (Right) -->
+            <path d="M65 80 Q 75 50 62 20" stroke="#15803d" fill="none" stroke-width="3"/>
+            <circle cx="67" cy="30" r="6" fill="#f8fafc" stroke="#15803d" stroke-width="2"/>
+            <circle cx="72" cy="44" r="6" fill="#f8fafc" stroke="#15803d" stroke-width="2"/>
+            <circle cx="69" cy="58" r="6" fill="#f8fafc" stroke="#15803d" stroke-width="2"/>
+        </svg>
+
+        <!-- GARUDA SHIELD BASE -->
+        <svg id="svg-garuda-full" viewBox="0 0 200 240" class="w-full h-full">
+            <!-- Wing & Body Silhouette -->
+            <path d="M100 10 C 40 30 10 90 20 150 C 30 190 70 210 100 230 C 130 210 170 190 180 150 C 190 90 160 30 100 10 Z" fill="#eab308" stroke="#ca8a04" stroke-width="6"/>
+            <!-- Shield Outline -->
+            <path d="M100 50 C 60 50 45 70 45 130 C 45 170 100 185 100 185 C 100 185 155 170 155 130 C 155 70 140 50 100 50 Z" fill="#ffffff" stroke="#000" stroke-width="4"/>
+            <!-- Line across shield center -->
+            <line x1="45" y1="115" x2="155" y2="115" stroke="#000" stroke-width="6"/>
+        </svg>
+    </div>
+
+    <script>
+        // APP STATE
+        const state = {
+            currentMateriIndex: 0,
+            currentMission: 1,
+            completedMissions: new Set(),
+            stars: 0,
+            soundEnabled: true,
+            ttsEnabled: true,
+            assessmentIndex: 0,
+            assessmentScore: 0,
+            assessmentAnswers: []
+        };
+
+        // AUDIO SYNTHESIZER (Web Audio API for kid-friendly sound effects)
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!state.soundEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'correct') {
+                // Happy Arpeggio
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            } else if (type === 'wrong') {
+                // Gentle retry boing
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(140, now + 0.3);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'click') {
+                // Pop click
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'fanfare') {
+                // Win cheer
+                [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.type = 'sine';
+                    o.frequency.value = freq;
+                    g.gain.setValueAtTime(0.2, now + idx * 0.1);
+                    g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.3);
+                    o.start(now + idx * 0.1);
+                    o.stop(now + idx * 0.1 + 0.3);
+                });
+            }
+        }
+
+        function speakText(text) {
+            if (!state.ttsEnabled) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop previous
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.9; // Slower speed for grade 1
+                utterance.pitch = 1.1; // Friendly pitch
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function toggleAudioSpeech() {
+            state.ttsEnabled = !state.ttsEnabled;
+            const icon = document.getElementById('ttsIcon');
+            if (state.ttsEnabled) {
+                icon.className = "fa-solid fa-volume-high text-lg";
+                speakText("Suara pembaca aktif");
+            } else {
+                icon.className = "fa-solid fa-volume-xmark text-lg text-slate-400";
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function toggleSFX() {
+            state.soundEnabled = !state.soundEnabled;
+            const icon = document.getElementById('sfxIcon');
+            icon.className = state.soundEnabled ? "fa-solid fa-music text-lg" : "fa-solid fa-slash text-lg text-slate-400";
+            if (state.soundEnabled) playSound('click');
+        }
+
+        function hideAllViews() {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+        }
+
+        function goToHome() {
+            playSound('click');
+            hideAllViews();
+            document.getElementById('view-home').classList.remove('hidden');
+            document.getElementById('totalStarsCount').innerText = state.completedMissions.size;
+        }
+
+        function goToMateri() {
+            playSound('click');
+            hideAllViews();
+            document.getElementById('view-materi').classList.remove('hidden');
+            renderMateriCard();
+        }
+
+        function goToMap() {
+            playSound('click');
+            hideAllViews();
+            document.getElementById('view-map').classList.remove('hidden');
+            renderMap();
+        }
+
+        function openInstructionsModal() {
+            playSound('click');
+            document.getElementById('instructionsModal').classList.remove('hidden');
+            speakText("Petunjuk Bermain. Selesaikan 10 Misi di Peta Petualangan dan kumpulkan bintangmu!");
+        }
+
+        function closeInstructionsModal() {
+            playSound('click');
+            document.getElementById('instructionsModal').classList.add('hidden');
+        }
+
+        const MATERI_DATA = [
+            {
+                sila: 1,
+                name: "Bintang",
+                svgId: "svg-bintang",
+                meaning: "Percaya kepada Tuhan Yang Maha Esa.",
+                attitude: "Berdoa sebelum makan dan menghormati teman yang beribadah.",
+                color: "bg-amber-100 border-amber-400 text-amber-900"
+            },
+            {
+                sila: 2,
+                name: "Rantai",
+                svgId: "svg-rantai",
+                meaning: "Saling menghargai dan menyayangi sesama manusia.",
+                attitude: "Menolong teman yang jatuh dan tidak mengejek teman.",
+                color: "bg-red-100 border-red-400 text-red-900"
+            },
+            {
+                sila: 3,
+                name: "Pohon Beringin",
+                svgId: "svg-pohon",
+                meaning: "Bersatu walaupun kita berbeda-beda.",
+                attitude: "Bermain rukun bersama tanpa memilih-milih teman.",
+                color: "bg-emerald-100 border-emerald-400 text-emerald-900"
+            },
+            {
+                sila: 4,
+                name: "Kepala Banteng",
+                svgId: "svg-banteng",
+                meaning: "Bermusyawarah dan berdiskusi bersama.",
+                attitude: "Memilih permainan bersama teman dengan cara berdiskusi.",
+                color: "bg-rose-100 border-rose-400 text-rose-900"
+            },
+            {
+                sila: 5,
+                name: "Padi dan Kapas",
+                svgId: "svg-padikapas",
+                meaning: "Bersikap adil dan suka berbagi.",
+                attitude: "Berbagi makanan dan bergiliran saat bermain mainan.",
+                color: "bg-yellow-100 border-yellow-400 text-yellow-900"
+            }
+        ];
+
+        function renderMateriCard() {
+            const data = MATERI_DATA[state.currentMateriIndex];
+            const container = document.getElementById('materiCardContainer');
+            
+            container.innerHTML = `
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <div class="w-48 h-48 shrink-0 p-2 bg-white rounded-3xl shadow-lg border-4 border-amber-200">
+                        ${document.getElementById(data.svgId).outerHTML}
+                    </div>
+                    <div class="space-y-4 flex-grow text-left">
+                        <div class="inline-block px-4 py-1.5 rounded-full font-black text-sm uppercase tracking-wide bg-amber-400 text-amber-950">
+                            Sila ke-${data.sila}
+                        </div>
+                        <h3 class="text-3xl font-black text-slate-800">${data.name}</h3>
+                        <div class="p-4 rounded-2xl ${data.color} border-2 space-y-2">
+                            <p class="font-bold text-lg">💡 Makna Sederhana:</p>
+                            <p class="text-base">${data.meaning}</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-sky-50 border-2 border-sky-200 text-sky-900 space-y-1">
+                            <p class="font-bold text-base">🌱 Contoh Sikap Baik:</p>
+                            <p class="text-base">${data.attitude}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('materiProgressText').innerText = `${state.currentMateriIndex + 1} dari 5`;
+            speakCurrentMateriCard();
+        }
+
+        function speakCurrentMateriCard() {
+            const data = MATERI_DATA[state.currentMateriIndex];
+            speakText(`Sila ke ${data.sila}, Simbol ${data.name}. Makna: ${data.meaning}. Contoh sikap: ${data.attitude}`);
+        }
+
+        function changeMateriIndex(delta) {
+            playSound('click');
+            state.currentMateriIndex = (state.currentMateriIndex + delta + 5) % 5;
+            renderMateriCard();
+        }
+
+        const MISSIONS_INFO = [
+            { id: 1, title: "Puzzle Garuda", icon: "🧩" },
+            { id: 2, title: "Pasang Simbol", icon: "🎯" },
+            { id: 3, title: "Cari Simbol", icon: "🔍" },
+            { id: 4, title: "Tebak Simbol", icon: "❓" },
+            { id: 5, title: "Jodohkan Nama", icon: "🏷️" },
+            { id: 6, title: "Hitung Simbol", icon: "🔢" },
+            { id: 7, title: "Kartu Memori", icon: "🃏" },
+            { id: 8, title: "Pilih Sikap Baik", icon: "❤️" },
+            { id: 9, title: "Roda Simbol", icon: "🎡" },
+            { id: 10, title: "Perisai Pancasila", icon: "🛡️" }
+        ];
+
+        function renderMap() {
+            const grid = document.getElementById('mapGrid');
+            grid.innerHTML = '';
+
+            MISSIONS_INFO.forEach((m) => {
+                const isCompleted = state.completedMissions.has(m.id);
+                const isUnlocked = m.id === 1 || state.completedMissions.has(m.id - 1);
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-3xl border-4 shadow-lg text-center flex flex-col items-center justify-between transition gap-2 ${
+                    isCompleted 
+                        ? 'bg-emerald-100 border-emerald-400 text-emerald-950' 
+                        : isUnlocked 
+                        ? 'bg-white border-amber-400 text-slate-800 card-pop cursor-pointer pulse-glow' 
+                        : 'bg-slate-100 border-slate-300 text-slate-400 opacity-70 cursor-not-allowed'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between w-full">
+                        <span class="font-black text-xs px-2.5 py-1 rounded-full ${isCompleted ? 'bg-emerald-500 text-white' : 'bg-amber-200 text-amber-900'}">
+                            MISI ${m.id}
+                        </span>
+                        <span>${isCompleted ? '⭐' : isUnlocked ? '🔓' : '🔒'}</span>
+                    </div>
+                    <div class="text-4xl my-2">${m.icon}</div>
+                    <div class="font-bold text-sm leading-tight">${m.title}</div>
+                    <button class="w-full mt-2 py-2 rounded-xl font-bold text-xs shadow ${
+                        isCompleted ? 'bg-emerald-600 text-white' : isUnlocked ? 'bg-amber-400 text-amber-950' : 'bg-slate-300 text-slate-500'
+                    }">
+                        ${isCompleted ? 'Main Lagi' : isUnlocked ? 'Mulai!' : 'Terkunci'}
+                    </button>
+                `;
+
+                if (isUnlocked) {
+                    card.onclick = () => loadMission(m.id);
+                }
+
+                grid.appendChild(card);
+            });
+
+            // Update Progress Bar
+            const percent = (state.completedMissions.size / 10) * 100;
+            document.getElementById('mapProgressBar').style.width = `${Math.max(10, percent)}%`;
+            document.getElementById('totalStarsCount').innerText = state.completedMissions.size;
+        }
+
+        function loadMission(missionId) {
+            playSound('click');
+            state.currentMission = missionId;
+            hideAllViews();
+            document.getElementById('view-mission').classList.remove('hidden');
+            document.getElementById('nextMissionNavBtn').classList.add('hidden');
+            document.getElementById('missionBadge').innerText = `MISI ${missionId}`;
+
+            const info = MISSIONS_INFO.find(m => m.id === missionId);
+            document.getElementById('missionTitle').innerText = info.title;
+
+            const arena = document.getElementById('missionArena');
+            arena.innerHTML = '';
+
+            // Route to specific Mission implementation
+            switch (missionId) {
+                case 1: runMission1(arena); break;
+                case 2: runMission2(arena); break;
+                case 3: runMission3(arena); break;
+                case 4: runMission4(arena); break;
+                case 5: runMission5(arena); break;
+                case 6: runMission6(arena); break;
+                case 7: runMission7(arena); break;
+                case 8: runMission8(arena); break;
+                case 9: runMission9(arena); break;
+                case 10: runMission10(arena); break;
+            }
+        }
+
+        function completeMission(praiseText) {
+            playSound('correct');
+            confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+            state.completedMissions.add(state.currentMission);
+
+            speakText(`Hebat! ${praiseText || 'Kamu berhasil!'}`);
+
+            // Banner feedback
+            const arena = document.getElementById('missionArena');
+            const feedback = document.createElement('div');
+            feedback.className = "mt-6 bg-emerald-100 border-2 border-emerald-400 text-emerald-900 rounded-2xl p-4 text-center font-black text-xl animate-bounce shadow-md w-full max-w-md";
+            feedback.innerHTML = `🌟 HEBAT! KAMU MENDAPAT 1 BINTANG! <br><span class="text-base font-semibold">${praiseText || ''}</span>`;
+            arena.appendChild(feedback);
+
+            document.getElementById('nextMissionNavBtn').classList.remove('hidden');
+        }
+
+        function nextMission() {
+            playSound('click');
+            if (state.currentMission < 10) {
+                loadMission(state.currentMission + 1);
+            } else {
+                startAssessment();
+            }
+        }
+
+        function speakMissionInstruction() {
+            const txt = document.getElementById('missionInstruction').innerText;
+            speakText(txt);
+        }
+
+        // ==============================================================
+        // MISI 1: SUSUN PUZZLE GARUDA
+        // ==============================================================
+        function runMission1(arena) {
+            const instruction = "Susun potongan gambar hingga menjadi Garuda Pancasila yang utuh!";
+            document.getElementById('missionInstruction').innerText = instruction;
+            speakText(instruction);
+
+            // Create 6 piece puzzle grid logic
+            let solvedCount = 0;
+            arena.innerHTML = `
+                <div class="w-full max-w-lg flex flex-col md:flex-row items-center gap-6">
+                    <!-- Drop board -->
+                    <div class="grid grid-cols-2 grid-rows-3 gap-2 w-64 h-80 bg-slate-100 p-3 rounded-2xl border-4 border-dashed border-amber-300 relative shadow-inner" id="puzzleBoard">
+                    </div>
+                    <!-- Pieces Tray -->
+                    <div class="flex flex-wrap md:flex-col gap-3 justify-center items-center p-3 bg-amber-50 rounded-2xl border-2 border-amber-200" id="puzzleTray">
+                    </div>
+                </div>
+            `;
+
+            const board = document.getElementById('puzzleBoard');
+            const tray = document.getElementById('puzzleTray');
+
+            // 6 Grid slots
+            for (let i = 0; i < 6; i++) {
+                const slot = document.createElement('div');
+                slot.className = "border-2 border-slate-300 rounded-xl bg-white/50 flex items-center justify-center relative overflow-hidden shadow-inner drop-slot";
+                slot.dataset.slotIndex = i;
+                
+                slot.ondragover = (e) => e.preventDefault();
+                slot.ondrop = (e) => {
+                    e.preventDefault();
+                    const pieceId = e.dataTransfer.getData('text/plain');
+                    handlePuzzlePieceDrop(pieceId, slot);
+                };
+                board.appendChild(slot);
+            }
+
+            // Create pieces shuffled
+            const pieceIndices = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
+            pieceIndices.forEach((idx) => {
+                const piece = document.createElement('div');
+                piece.className = "w-24 h-24 bg-amber-400 rounded-xl cursor-grab flex items-center justify-center shadow-md card-pop font-black text-white text-2xl border-2 border-amber-600";
+                piece.innerText = `🧩 Bagian ${idx + 1}`;
+                piece.draggable = true;
+                piece.id = `puzzle-piece-${idx}`;
+                piece.dataset.pieceIndex = idx;
+
+                piece.ondragstart = (e) => {
+                    e.dataTransfer.setData('text/plain', piece.id);
+                };
+
+                // Touch/Click selection for mobile TV support
+                piece.onclick = () => {
+                    // Snap to next empty correct slot
+                    const targetSlot = Array.from(board.children).find(s => parseInt(s.dataset.slotIndex) === idx);
+                    if (targetSlot && targetSlot.children.length === 0) {
+                        targetSlot.appendChild(piece);
+                        piece.className = "w-full h-full bg-emerald-400 rounded-lg flex items-center justify-center font-bold text-white text-sm border";
+                        piece.innerText = "✓ Pas!";
+                        playSound('click');
+                        solvedCount++;
+                        if (solvedCount === 6) {
+                            completeMission("Di dada Garuda terdapat perisai dengan simbol-simbol Pancasila.");
+                        }
+                    } else {
+                        playSound('wrong');
+                    }
+                };
+
+                tray.appendChild(piece);
+            });
+
+            function handlePuzzlePieceDrop(pieceId, slot) {
+                const piece = document.getElementById(pieceId);
+                if (!piece) return;
+                const pIdx = parseInt(piece.dataset.pieceIndex);
+                const sIdx = parseInt(slot.dataset.slotIndex);
+
+                if (pIdx === sIdx && slot.children.length === 0) {
+                    slot.appendChild(piece);
+                    piece.className = "w-full h-full bg-emerald-400 rounded-lg flex items-center justify-center font-bold text-white text-sm";
+                    piece.innerText = "✓ Pas!";
+                    playSound('click');
+                    solvedCount++;
+                    if (solvedCount === 6) {
+                        completeMission("Di dada Garuda terdapat perisai dengan simbol-simbol Pancasila.");
+                    }
+                } else {
+                    playSound('wrong');
+                }
+            }
+        }
+
+        // ==============================================================
+        // MISI 2: PASANG SIMBOL (Match Symbol to Sila Number)
+        // ==============================================================
+        function runMission2(arena) {
+            const instruction = "Pasangkan setiap simbol ke nomor Sila yang tepat!";
+            document.getElementById('missionInstruction').innerText = instruction;
+            speakText(instruction);
+
+            let score = 0;
+            arena.innerHTML = `
+                <div class="w-full max-w-2xl space-y-6">
+                    <div class="grid grid-cols-5 gap-2 md:gap-4" id="symbolSourceRow"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-3" id="silaTargetRow"></div>
+                </div>
+            `;
+
+            const sourceRow = document.getElementById('symbolSourceRow');
+            const targetRow = document.getElementById('silaTargetRow');
+
+            let selectedSymbol = null;
+
+            // Render Symbols shuffled
+            const shuffledMateri = [...MATERI_DATA].sort(() => Math.random() - 0.5);
+            shuffledMateri.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "p-2 bg-white rounded-2xl border-4 border-amber-300 shadow cursor-pointer card-pop flex flex-col items-center justify-center h-24 md:h-28";
+                card.innerHTML = `${document.getElementById(item.svgId).outerHTML}<span class="text-xs font-bold mt-1">${item.name}</span>`;
+                
+                card.onclick = () => {
+                    playSound('click');
+                    document.querySelectorAll('#symbolSourceRow > div').forEach(c => c.classList.remove('ring-4', 'ring-sky-500'));
+                    card.classList.add('ring-4', 'ring-sky-500');
+                    selectedSymbol = item;
+                    speakText(`Kamu memilih ${item.name}. Sekarang pilih nomor Sila!`);
+                };
+                sourceRow.appendChild(card);
+            });
+
+            // Render Sila 1-5 Targets
+            [1, 2, 3, 4, 5].forEach(silaNum => {
+                const target = document.createElement('div');
+                target.className = "p-3 bg-sky-50 rounded-2xl border-2 border-dashed border-sky-400 text-center flex flex-col items-center justify-center min-h-[90px] cursor-pointer hover:bg-sky-100 transition";
+                target.innerHTML = `<span class="bg-sky-600 text-white font-black text-sm px-3 py-1 rounded-full">Sila ke-${silaNum}</span><div class="mt-2 text-xs font-bold text-slate-400 text-slot">Klik untuk pasang</div>`;
+
+                target.onclick = () => {
+                    if (!selectedSymbol) {
+                        speakText("Pilih gambar simbol terlebih dahulu di atas!");
+                        return;
+                    }
+                    if (selectedSymbol.sila === silaNum) {
+                        playSound('correct');
+                        target.className = "p-3 bg-emerald-100 rounded-2xl border-2 border-emerald-500 text-center flex flex-col items-center justify-center min-h-[90px]";
+                        target.innerHTML = `<span class="bg-emerald-600 text-white font-black text-sm px-3 py-1 rounded-full">Sila ke-${silaNum}</span><div class="w-12 h-12 mt-1">${document.getElementById(selectedSymbol.svgId).outerHTML}</div>`;
+                        
+                        // Disable selected symbol card
+                        const activeCard = Array.from(sourceRow.children).find(c => c.classList.contains('ring-sky-500'));
+                        if (activeCard) activeCard.style.visibility = 'hidden';
+                        
+                        selectedSymbol = null;
+                        score++;
+                        if (score === 5) {
+                            completeMission("Kamu berhasil memasangkan kelima simbol dengan sila yang tepat!");
+                        }
+                    } else {
+                        playSound('wrong');
+                        speakText("Belum tepat, ayo coba lagi!");
+                    }
+                };
+                targetRow.appendChild(target);
+            });
+        }
+
+        // ==============================================================
+        // MISI 3: PUZZLE / CARI SIMBOL
+        // ==============================================================
+        function runMission3(arena) {
+            const promptTarget = MATERI_DATA[0]; // Bintang
+            const instruction = `Cari dan sentuh simbol yang berbentuk ${promptTarget.name.toLowerCase()}!`;
+            document.getElementById('missionInstruction').innerText = instruction;
+            speakText(instruction);
+
+            arena.innerHTML = `
+                <div class="space-y-6 text-center w-full max-w-xl">
+                    <div class="text-2xl font-black text-amber-950 bg-amber-100 p-4 rounded-2xl border-2 border-amber-300">
+                        "Cari simbol yang berbentuk BINTANG⭐!"
+                    </div>
+                    <div class="grid grid-cols-3 gap-4" id="mission3Grid"></div>
+                </div>
+            `;
+
+            const grid = document.getElementById('mission3Grid');
+            const shuffled = [...MATERI_DATA].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "p-4 bg-white rounded-3xl border-4 border-slate-200 shadow-lg cursor-pointer card-pop flex flex-col items-center justify-center h-32 md:h-40";
+                card.innerHTML = `${document.getElementById(item.svgId).outerHTML}`;
+
+                card.onclick = () => {
+                    if (item.sila === 1) {
+                        card.classList.add('border-emerald-500', 'bg-emerald-50', 'scale-105');
+                        completeMission("Hebat! Bintang adalah simbol Sila ke-1!");
+                    } else {
+                        playSound('wrong');
+                        card.classList.add('border-rose-400', 'bg-rose-50');
+                        speakText("Bukan yang ini, ayo cari yang berbentuk bintang!");
+                    }
+                };
+                grid.appendChild(card);
+            });
+        }
+
+        // ==============================================================
+        // MISI 4: TEBAK SIMBOL (5 Quiz Questions)
+        // ==============================================================
+        function runMission4(arena) {
+            const questions = [
+                { q: "Aku berwarna emas dan berbentuk seperti bintang. Aku adalah simbol sila ke-...", ans: "1", opts: ["1", "2", "3"] },
+                { q: "Aku berbentuk gelang-gelang yang bersambung. Aku adalah simbol sila ke-...", ans: "2", opts: ["1", "2", "4"] },
+                { q: "Aku adalah pohon yang rindang dan teduh. Aku adalah simbol sila ke-...", ans: "3", opts: ["2", "3", "5"] },
+                { q: "Aku adalah hewan gagah berani berkepala hitam. Aku adalah simbol sila ke-...", ans: "4", opts: ["3", "4", "5"] },
+                { q: "Aku berwarna kuning padi dan putih kapas. Aku adalah simbol sila ke-...", ans: "5", opts: ["1", "4", "5"] }
+            ];
+
+            let qIdx = 0;
+
+            function renderQ() {
+                const q = questions[qIdx];
+                document.getElementById('missionInstruction').innerText = `Pertanyaan ${qIdx + 1} dari 5`;
+                speakText(q.q);
+
+                arena.innerHTML = `
+                    <div class="space-y-6 max-w-lg w-full text-center">
+                        <div class="bg-amber-100 p-6 rounded-3xl border-4 border-amber-300 text-xl font-bold text-amber-950 shadow">
+                            "${q.q}"
+                        </div>
+                        <div class="grid grid-cols-3 gap-4" id="m4OptGrid"></div>
+                    </div>
+                `;
+
+                const grid = document.getElementById('m4OptGrid');
+                q.opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "bg-sky-500 hover:bg-sky-600 text-white font-black text-2xl py-6 rounded-3xl shadow-lg border-b-8 border-sky-700 card-pop";
+                    btn.innerText = `Sila ${opt}`;
+                    btn.onclick = () => {
+                        if (opt === q.ans) {
+                            playSound('correct');
+                            qIdx++;
+                            if (qIdx < questions.length) {
+                                renderQ();
+                            } else {
+                                completeMission("Pintar! Kamu berhasil menjawab semua tebakan simbol!");
+                            }
+                        } else {
+                            playSound('wrong');
+                            speakText("Ayo coba lagi!");
+                        }
+                    };
+                    grid.appendChild(btn);
+                });
+            }
+
+            renderQ();
+        }
+
+        // ==============================================================
+        // MISI 5: PASANG POTONGAN (Match Symbol to Name)
+        // ==============================================================
+        function runMission5(arena) {
+            const instruction = "Jodohkan gambar simbol dengan nama tulisan yang sesuai!";
+            document.getElementById('missionInstruction').innerText = instruction;
+            speakText(instruction);
+
+            let matched = 0;
+            arena.innerHTML = `
+                <div class="w-full max-w-xl space-y-4">
+                    <div class="grid grid-cols-1 gap-3" id="m5Rows"></div>
+                </div>
+            `;
+
+            const container = document.getElementById('m5Rows');
+            const items = [...MATERI_DATA].sort(() => Math.random() - 0.5);
+
+            items.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between bg-amber-50 p-3 rounded-2xl border-2 border-amber-300 shadow";
+                
+                row.innerHTML = `
+                    <div class="w-14 h-14 bg-white p-1 rounded-xl shadow">${document.getElementById(item.svgId).outerHTML}</div>
+                    <div class="text-xl font-black text-slate-400">➔</div>
+                    <select class="bg-white font-bold text-base px-4 py-2 rounded-xl border-2 border-slate-300 shadow text-slate-800 focus:border-amber-500 outline-none">
+                        <option value="">-- Pilih Nama --</option>
+                        <option value="Bintang">Bintang</option>
+                        <option value="Rantai">Rantai</option>
+                        <option value="Pohon Beringin">Pohon Beringin</option>
+                        <option value="Kepala Banteng">Kepala Banteng</option>
+                        <option value="Padi dan Kapas">Padi dan Kapas</option>
+                    </select>
+                `;
+
+                const select = row.querySelector('select');
+                select.onchange = () => {
+                    if (select.value === item.name) {
+                        playSound('correct');
+                        row.className = "flex items-center justify-between bg-emerald-100 p-3 rounded-2xl border-2 border-emerald-400 shadow";
+                        select.disabled = true;
+                        matched++;
+                        if (matched === 5) {
+                            completeMission("Hebat! Kamu berhasil mencocokkan semua simbol dengan namanya!");
+                        }
+                    } else {
+                        playSound('wrong');
+                        select.value = "";
+                        speakText("Coba pilih nama yang lain!");
+                    }
+                };
+
+                container.appendChild(row);
+            });
+        }
+
+        // ==============================================================
+        // MISI 6: HITUNG SIMBOL
+        // ==============================================================
+        function runMission6(arena) {
+            const countTarget = 4; // 4 Bintang
+            const instruction = "Berapa jumlah gambar Bintang ⭐ di dalam kotak?";
+            document.getElementById('missionInstruction').innerText = instruction;
+            speakText(instruction);
+
+            arena.innerHTML = `
+                <div class="space-y-6 text-center w-full max-w-lg">
+                    <div class="bg-amber-100 p-6 rounded-3xl border-4 border-amber-300 flex flex-wrap justify-center gap-4 min-h-[160px] items-center" id="countBox">
+                    </div>
+                    <div class="flex justify-center gap-3" id="countOptions"></div>
+                </div>
+            `;
+
+            const box = document.getElementById('countBox');
+            // Render 4 Stars and 2 noise symbols
+            for (let i = 0; i < countTarget; i++) {
+                const el = document.createElement('div');
+                el.className = "w-16 h-16 bg-white p-2 rounded-2xl shadow border-2 border-amber-400 bounce-gentle";
+                el.innerHTML = document.getElementById('svg-bintang').outerHTML;
+                box.appendChild(el);
+            }
+
+            const optsRow = document.getElementById('countOptions');
+            [1, 2, 3, 4, 5].forEach(num => {
+                const btn = document.createElement('button');
+                btn.className = "w-14 h-14 bg-sky-500 hover:bg-sky-600 text-white font-black text-2xl rounded-2xl shadow-lg border-b-4 border-sky-700 card-pop";
+                btn.innerText = num;
+                btn.onclick = () => {
+                    if (num === countTarget) {
+                        completeMission("Tepat sekali! Ada 4 bintang ⭐!");
+                    } else {
+                        playSound('wrong');
+                        speakText("Hitung lagi dengan teliti ya!");
+                    }
+                };
+                optsRow.appendChild(btn);
+            });
+        }
+
+        // ==============================================================
+        // MISI 7: MEMORY CARD (10 Cards / 5 Pairs)
+        // ==============================================================
+        function runMission7(arena) {
+            const instruction = "Buka kartu dan temukan pasangan simbol yang sama!";
+            document.getElementById('missionInstruction').innerText = instruction;
+            speakText(instruction);
+
+            let flipped = [];
+            let matchedPairs = 0;
+
+            arena.innerHTML = `
+                <div class="grid grid-cols-5 gap-3 w-full max-w-xl" id="memoryGrid"></div>
+            `;
+
+            const grid = document.getElementById('memoryGrid');
+            
+            // Duplicate 5 symbols to make 10 cards
+            const deck = [...MATERI_DATA, ...MATERI_DATA]
+                .map((item, idx) => ({ ...item, uniqueId: idx }))
+                .sort(() => Math.random() - 0.5);
+
+            deck.forEach((cardData) => {
+                const card = document.createElement('div');
+                card.className = "h-24 bg-amber-400 rounded-2xl border-4 border-amber-600 shadow-md cursor-pointer flex items-center justify-center text-3xl font-black text-white card-pop";
+                card.innerText = "❓";
+
+                card.onclick = () => {
+                    if (flipped.length < 2 && !card.classList.contains('flipped') && !card.classList.contains('matched')) {
+                        playSound('click');
+                        card.classList.add('flipped', 'bg-white');
+                        card.innerHTML = document.getElementById(cardData.svgId).outerHTML;
+
+                        flipped.push({ card, data: cardData });
+
+                        if (flipped.length === 2) {
+                            if (flipped[0].data.sila === flipped[1].data.sila) {
+                                playSound('correct');
+                                flipped[0].card.classList.add('matched', 'border-emerald-500');
+                                flipped[1].card.classList.add('matched', 'border-emerald-500');
+                                flipped = [];
+                                matchedPairs++;
+                                if (matchedPairs === 5) {
+                                    completeMission("Luar biasa! Kamu daya ingatnya sangat hebat!");
+                                }
+                            } else {
+                                playSound('wrong');
+                                setTimeout(() => {
+                                    flipped.forEach(f => {
+                                        f.card.classList.remove('flipped', 'bg-white');
+                                        f.card.className = "h-24 bg-amber-400 rounded-2xl border-4 border-amber-600 shadow-md cursor-pointer flex items-center justify-center text-3xl font-black text-white card-pop";
+                                        f.card.innerText = "❓";
+                                    });
+                                    flipped = [];
+                                }, 1000);
+                            }
+                        }
+                    }
+                };
+                grid.appendChild(card);
+            });
+        }
+
+        // ==============================================================
+        // MISI 8: PILIH SIKAP YANG TEPAT
+        // ==============================================================
+        function runMission8(arena) {
+            const scenario = {
+                text: "Dina berdoa sebelum makan di kantin sekolah. Sikap Dina sesuai dengan simbol...",
+                correctSila: 1,
+                opts: [
+                    { sila: 1, name: "Bintang", svgId: "svg-bintang" },
+                    { sila: 2, name: "Rantai", svgId: "svg-rantai" },
+                    { sila: 5, name: "Padi dan Kapas", svgId: "svg-padikapas" }
+                ]
+            };
+
+            document.getElementById('missionInstruction').innerText = "Pilih simbol yang sesuai dengan cerita!";
+            speakText(scenario.text);
+
+            arena.innerHTML = `
+                <div class="space-y-6 text-center w-full max-w-lg">
+                    <div class="bg-sky-100 p-6 rounded-3xl border-4 border-sky-300 text-lg font-bold text-sky-950 shadow">
+                        "🏫 ${scenario.text}"
+                    </div>
+                    <div class="grid grid-cols-3 gap-4" id="m8Opts"></div>
+                </div>
+            `;
+
+            const grid = document.getElementById('m8Opts');
+            scenario.opts.forEach(opt => {
+                const card = document.createElement('div');
+                card.className = "p-4 bg-white rounded-3xl border-4 border-amber-300 shadow-lg cursor-pointer card-pop flex flex-col items-center justify-center h-32 md:h-36";
+                card.innerHTML = `${document.getElementById(opt.svgId).outerHTML}<span class="text-xs font-bold mt-2">${opt.name}</span>`;
+
+                card.onclick = () => {
+                    if (opt.sila === scenario.correctSila) {
+                        completeMission("Benar! Berdoa adalah contoh sikap percaya kepada Tuhan (Sila ke-1 Bintang).");
+                    } else {
+                        playSound('wrong');
+                        speakText("Belum tepat, ayo pikirkan simbol mana untuk berdoa!");
+                    }
+                };
+                grid.appendChild(card);
+            });
+        }
+
+        // ==============================================================
+        // MISI 9: RODA SIMBOL (Spinning Wheel)
+        // ==============================================================
+        function runMission9(arena) {
+            const instruction = "Putar roda simbol dan jawab pertanyaan yang muncul!";
+            document.getElementById('missionInstruction').innerText = instruction;
+            speakText(instruction);
+
+            arena.innerHTML = `
+                <div class="flex flex-col items-center gap-6 w-full max-w-md">
+                    <!-- Pointer -->
+                    <div class="relative flex flex-col items-center">
+                        <div class="text-4xl -mb-4 z-10">🔻</div>
+                        <div class="w-64 h-64 rounded-full border-8 border-amber-400 bg-white shadow-2xl relative overflow-hidden flex items-center justify-center" id="wheelBox">
+                            <!-- Wheel Slices SVG -->
+                            <svg viewBox="0 0 100 100" class="w-full h-full transform transition-transform duration-3000 ease-out" id="wheelSvg">
+                                <circle cx="50" cy="50" r="48" fill="#fef08a"/>
+                                <line x1="50" y1="50" x2="50" y2="2" stroke="#f59e0b" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="95" y2="35" stroke="#f59e0b" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="78" y2="90" stroke="#f59e0b" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="22" y2="90" stroke="#f59e0b" stroke-width="2"/>
+                                <line x1="50" y1="50" x2="5" y2="35" stroke="#f59e0b" stroke-width="2"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center font-black text-2xl text-amber-900 pointer-events-none">
+                                🎡
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="spinBtn" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-black text-2xl px-10 py-4 rounded-3xl shadow-xl border-b-6 border-amber-600 card-pop">
+                        PUTAR RODA! 🔄
+                    </button>
+
+                    <div id="wheelQuestionBox" class="hidden w-full bg-emerald-100 border-2 border-emerald-400 p-4 rounded-2xl text-center space-y-3">
+                        <p class="font-bold text-emerald-950 text-base" id="wheelQuestionText"></p>
+                        <div class="flex justify-center gap-3" id="wheelAnsBtns"></div>
+                    </div>
+                </div>
+            `;
+
+            const spinBtn = document.getElementById('spinBtn');
+            const wheelSvg = document.getElementById('wheelSvg');
+            let isSpinning = false;
+
+            spinBtn.onclick = () => {
+                if (isSpinning) return;
+                isSpinning = true;
+                playSound('click');
+                
+                const randomRotation = 1440 + Math.floor(Math.random() * 360);
+                wheelSvg.style.transform = `rotate(${randomRotation}deg)`;
+
+                setTimeout(() => {
+                    isSpinning = false;
+                    playSound('fanfare');
+                    showWheelQuestion();
+                }, 3000);
+            };
+
+            function showWheelQuestion() {
+                const box = document.getElementById('wheelQuestionBox');
+                box.classList.remove('hidden');
+                document.getElementById('wheelQuestionText').innerText = "Roda berhenti di Padi dan Kapas! Padi dan Kapas adalah simbol Sila ke berapa?";
+                speakText("Roda berhenti di Padi dan Kapas! Padi dan Kapas adalah simbol Sila ke berapa?");
+
+                const btns = document.getElementById('wheelAnsBtns');
+                btns.innerHTML = '';
+
+                [3, 4, 5].forEach(num => {
+                    const b = document.createElement('button');
+                    b.className = "bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xl px-6 py-2.5 rounded-xl shadow";
+                    b.innerText = `Sila ${num}`;
+                    b.onclick = () => {
+                        if (num === 5) {
+                            completeMission("Hebat! Padi dan Kapas adalah simbol Sila ke-5!");
+                        } else {
+                            playSound('wrong');
+                            speakText("Coba lagi ya!");
+                        }
+                    };
+                    btns.appendChild(b);
+                });
+            }
+        }
+
+        // ==============================================================
+        // MISI 10: PERISAI PANCASILA (Big Shield Final Puzzle)
+        // ==============================================================
+        function runMission10(arena) {
+            const instruction = "Susun kelima simbol Pancasila pada posisi perisai Garuda yang tepat!";
+            document.getElementById('missionInstruction').innerText = instruction;
+            speakText(instruction);
+
+            let placedCount = 0;
+
+            arena.innerHTML = `
+                <div class="w-full max-w-lg flex flex-col items-center gap-6">
+                    <!-- Big Shield Layout Container -->
+                    <div class="w-72 h-88 bg-gradient-to-b from-amber-200 to-amber-400 p-4 rounded-3xl border-4 border-amber-600 shadow-2xl relative flex flex-col justify-between">
+                        <!-- Top Row: Buffalo (Left), Banyan (Right) -->
+                        <div class="flex justify-between w-full">
+                            <div class="w-20 h-20 bg-white/80 rounded-2xl border-2 border-dashed border-slate-400 flex items-center justify-center shield-slot" data-sila="4">
+                                <span class="text-xs text-slate-400 font-bold">Kiri Atas</span>
+                            </div>
+                            <div class="w-20 h-20 bg-white/80 rounded-2xl border-2 border-dashed border-slate-400 flex items-center justify-center shield-slot" data-sila="3">
+                                <span class="text-xs text-slate-400 font-bold">Kanan Atas</span>
+                            </div>
+                        </div>
+
+                        <!-- Center: Star (Center) -->
+                        <div class="self-center w-22 h-22 bg-white/80 rounded-2xl border-2 border-dashed border-amber-500 flex items-center justify-center shield-slot" data-sila="1">
+                            <span class="text-xs text-slate-400 font-bold">Tengah</span>
+                        </div>
+
+                        <!-- Bottom Row: Chain (Left), Rice & Cotton (Right) -->
+                        <div class="flex justify-between w-full">
+                            <div class="w-20 h-20 bg-white/80 rounded-2xl border-2 border-dashed border-slate-400 flex items-center justify-center shield-slot" data-sila="2">
+                                <span class="text-xs text-slate-400 font-bold">Kiri Bawah</span>
+                            </div>
+                            <div class="w-20 h-20 bg-white/80 rounded-2xl border-2 border-dashed border-slate-400 flex items-center justify-center shield-slot" data-sila="5">
+                                <span class="text-xs text-slate-400 font-bold">Kanan Bawah</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Symbol Selector Chips -->
+                    <div class="flex flex-wrap justify-center gap-3 bg-white p-3 rounded-2xl border-2 border-amber-300 shadow" id="shieldSymbolsTray"></div>
+                </div>
+            `;
+
+            const tray = document.getElementById('shieldSymbolsTray');
+            let activeSymbol = null;
+
+            MATERI_DATA.forEach(item => {
+                const chip = document.createElement('div');
+                chip.className = "w-16 h-16 p-1 bg-amber-100 rounded-xl border-2 border-amber-400 cursor-pointer card-pop flex items-center justify-center";
+                chip.innerHTML = document.getElementById(item.svgId).outerHTML;
+                
+                chip.onclick = () => {
+                    playSound('click');
+                    document.querySelectorAll('#shieldSymbolsTray > div').forEach(c => c.classList.remove('ring-4', 'ring-sky-500'));
+                    chip.classList.add('ring-4', 'ring-sky-500');
+                    activeSymbol = item;
+                    speakText(`Pilih posisi untuk ${item.name}!`);
+                };
+                tray.appendChild(chip);
+            });
+
+            document.querySelectorAll('.shield-slot').forEach(slot => {
+                slot.onclick = () => {
+                    if (!activeSymbol) {
+                        speakText("Sentuh simbol di bawah terlebih dahulu!");
+                        return;
+                    }
+                    const reqSila = parseInt(slot.dataset.sila);
+                    if (activeSymbol.sila === reqSila) {
+                        playSound('correct');
+                        slot.innerHTML = document.getElementById(activeSymbol.svgId).outerHTML;
+                        slot.className = "w-20 h-20 bg-white p-1 rounded-2xl border-2 border-emerald-500 shadow-md";
+
+                        const activeChip = Array.from(tray.children).find(c => c.classList.contains('ring-sky-500'));
+                        if (activeChip) activeChip.style.visibility = 'hidden';
+
+                        activeSymbol = null;
+                        placedCount++;
+
+                        if (placedCount === 5) {
+                            completeMission("🎉 SELAMAT! Kamu telah menyelesaikan Petualangan Simbol Pancasila!");
+                        }
+                    } else {
+                        playSound('wrong');
+                        speakText("Posisi belum tepat, coba cari posisi lain di perisai!");
+                    }
+                };
+            });
+        }
+
+        // ==============================================================
+        // ASESMEN AKHIR (10 Questions specified in prompt)
+        // ==============================================================
+        const ASSESSMENT_QUESTIONS = [
+            { q: "1. Apa simbol sila pertama?", opts: ["A. Bintang", "B. Rantai", "C. Kepala banteng"], ans: 0 },
+            { q: "2. Rantai adalah simbol sila ke...", opts: ["A. 1", "B. 2", "C. 3"], ans: 1 },
+            { q: "3. Apa simbol sila ketiga?", opts: ["A. Padi dan kapas", "B. Pohon beringin", "C. Bintang"], ans: 1 },
+            { q: "4. Kepala banteng adalah simbol sila ke...", opts: ["A. 2", "B. 3", "C. 4"], ans: 2 },
+            { q: "5. Padi dan kapas adalah simbol sila ke...", opts: ["A. 3", "B. 4", "C. 5"], ans: 2 },
+            { q: "6. Sikap menolong teman sesuai dengan nilai...", opts: ["A. Kemanusiaan", "B. Persatuan", "C. Musyawarah"], ans: 0 },
+            { q: "7. Bermain bersama tanpa memilih-milih teman menunjukkan sikap...", opts: ["A. Persatuan", "B. Berbohong", "C. Bertengkar"], ans: 0 },
+            { q: "8. Memilih permainan bersama teman sebaiknya dilakukan dengan...", opts: ["A. Bertengkar", "B. Bermusyawarah", "C. Memaksa"], ans: 1 },
+            { q: "9. Berbagi makanan dengan teman merupakan contoh sikap...", opts: ["A. Tidak peduli", "B. Adil", "C. Sombong"], ans: 1 },
+            { q: "10. Ada berapa simbol Pancasila pada perisai Garuda?", opts: ["A. 3", "B. 4", "C. 5"], ans: 2 }
+        ];
+
+        function startAssessment() {
+            playSound('click');
+            state.assessmentIndex = 0;
+            state.assessmentScore = 0;
+            state.assessmentAnswers = [];
+            hideAllViews();
+            document.getElementById('view-assessment').classList.remove('hidden');
+            renderAssessmentQuestion();
+        }
+
+        function renderAssessmentQuestion() {
+            const card = document.getElementById('assessmentCard');
+            const item = ASSESSMENT_QUESTIONS[state.assessmentIndex];
+
+            document.getElementById('assessmentProgress').innerText = `Soal ${state.assessmentIndex + 1} dari 10`;
+            speakText(item.q);
+
+            card.innerHTML = `
+                <div class="text-xl md:text-2xl font-black text-slate-800 leading-snug">
+                    ${item.q}
+                </div>
+                <div class="grid grid-cols-1 gap-3 pt-2" id="assessmentOpts"></div>
+            `;
+
+            const optsContainer = document.getElementById('assessmentOpts');
+            item.opts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "p-4 bg-slate-50 hover:bg-purple-100 text-slate-800 font-bold text-left text-lg rounded-2xl border-2 border-slate-200 card-pop flex items-center justify-between";
+                btn.innerHTML = `<span>${opt}</span> <i class="fa-solid fa-chevron-right text-slate-400"></i>`;
+                
+                btn.onclick = () => {
+                    if (idx === item.ans) {
+                        state.assessmentScore++;
+                        playSound('correct');
+                    } else {
+                        playSound('wrong');
+                    }
+                    state.assessmentIndex++;
+                    if (state.assessmentIndex < ASSESSMENT_QUESTIONS.length) {
+                        renderAssessmentQuestion();
+                    } else {
+                        showResults();
+                    }
+                };
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function showResults() {
+            playSound('fanfare');
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
+
+            hideAllViews();
+            document.getElementById('view-results').classList.remove('hidden');
+
+            const score = state.assessmentScore;
+            document.getElementById('correctScoreText').innerText = `${score} / 10`;
+            document.getElementById('finalScoreText').innerText = `${score * 10}`;
+            document.getElementById('finalStarsText').innerText = `⭐ ${score}`;
+
+            const titleEl = document.getElementById('resultTitle');
+            const feedbackEl = document.getElementById('resultFeedback');
+            const emojiEl = document.getElementById('resultEmoji');
+
+            if (score >= 9) {
+                emojiEl.innerText = "🌟🏆";
+                titleEl.innerText = "Luar biasa!";
+                feedbackEl.innerText = "Kamu sudah sangat mengenal simbol Pancasila!";
+            } else if (score >= 7) {
+                emojiEl.innerText = "😊👍";
+                titleEl.innerText = "Hebat!";
+                feedbackEl.innerText = "Kamu sudah memahami sebagian besar simbol Pancasila. Yuk, belajar lagi agar makin mantap!";
+            } else {
+                emojiEl.innerText = "💪❤️";
+                titleEl.innerText = "Tetap Semangat!";
+                feedbackEl.innerText = "Ayo pelajari kembali materi dan coba kuis lagi! Kamu pasti bisa!";
+            }
+
+            speakText(`${titleEl.innerText} ${feedbackEl.innerText}`);
+        }
+
+        // Initialize App on Window Load
+        window.onload = function() {
+            goToHome();
+        };
+    </script>
+</body>
+</html>
